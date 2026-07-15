@@ -1,0 +1,8 @@
+# Safety net at the repo root — per-app .gitignores add the specifics
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store

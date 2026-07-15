@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: #FFFFFF;
+  font-family: 'Open Sans', sans-serif;
+  color: #1c1c1c;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: #0274be; text-decoration: none; }
+a:hover { color: #025b94; text-decoration: underline; }
+
+input, select, textarea, button { font-family: 'Open Sans', sans-serif; }
+input:focus, select:focus, textarea:focus { outline: 2px solid #0274be; outline-offset: -1px; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes popIn { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: scale(1); } }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #C9CDCF; border-radius: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Hover utilities — inline styles can't express :hover, so screens add these classes */
+.hv-brand { transition: filter .12s ease; }
+.hv-brand:hover { filter: brightness(0.92); }
+
+.hv-outline { transition: border-color .12s ease, color .12s ease; }
+.hv-outline:hover { border-color: #0274be !important; color: #0274be !important; }
+
+.hv-link { transition: color .12s ease; }
+.hv-link:hover { color: #0274be !important; text-decoration: none; }
+
+.hv-row { transition: background .1s ease; }
+.hv-row:hover { background: #F7F8F2 !important; }
+
+.hv-nav { transition: background .1s ease, color .1s ease; }
+.hv-nav:hover { background: rgba(255,255,255,0.14) !important; color: #FFFFFF !important; }
+
+.hv-dark-border { transition: border-color .12s ease; }
+.hv-dark-border:hover { border-color: #1c1c1c !important; }
+
+.hv-role { transition: border-color .12s ease, background .12s ease; }
+.hv-role:hover { border-color: #0274be !important; background: #F0F7FC !important; }
+
+.hv-soft { transition: background .1s ease; }
+.hv-soft:hover { background: #F0F7FC !important; }
+
+.hv-chip-part { transition: background .1s ease; }
+.hv-chip-part:hover { background: #3A5273 !important; }
+
+.hv-close { transition: color .12s ease; }
+.hv-close:hover { color: #1c1c1c !important; }
+
+/* Print: only the service-report sheet (.print-area) lands on paper */
+@media print {
+  body { background: #FFFFFF; }
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
