@@ -1,0 +1,75 @@
+// AMC Manager schema — Supabase Postgres via the shared poolers.
+// DATABASE_URL = transaction-mode pooler (pgbouncer), DIRECT_URL = session-mode (migrations).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  email    String @id
+  password String
+  name     String
+  role     String
+  title    String
+}
+
+model Equipment {
+  id       String     @id
+  seq      Int        @unique @default(autoincrement()) // preserves display order
+  name     String
+  type     String
+  client   String
+  site     String
+  loc      String
+  serial   String
+  install  String
+  due      String
+  dueSort  Int
+  status   String
+  interval String
+  next     String
+  specs    Json       @default("[]")
+  history  Json       @default("[]")
+  tickets  Ticket[]
+  logs     FieldLog[]
+}
+
+model Part {
+  sku  String @id
+  name String
+  qty  Int
+  min  Int
+  used String
+}
+
+model Ticket {
+  id        String    @id
+  seq       Int       @unique @default(autoincrement()) // newest-first ordering
+  title     String
+  eqId      String
+  pri       String
+  tech      String
+  status    String
+  date      String
+  by        String
+  equipment Equipment @relation(fields: [eqId], references: [id])
+}
+
+model FieldLog {
+  id        Int       @id @default(autoincrement())
+  eqId      String
+  date      String
+  tech      String
+  tag       String
+  issue     String
+  work      String
+  notes     String
+  parts     Json      @default("[]")
+  equipment Equipment @relation(fields: [eqId], references: [id])
+}

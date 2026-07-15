@@ -13,8 +13,8 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  login(@Body() body: LoginDto): Session {
-    const user = this.data.findUser(body?.email ?? '', body?.password ?? '');
+  async login(@Body() body: LoginDto): Promise<Session> {
+    const user = await this.data.findUser(body?.email ?? '', body?.password ?? '');
     if (!user) throw new UnauthorizedException('Invalid email or password');
     return { email: user.email, name: user.name, role: user.role };
   }

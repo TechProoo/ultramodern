@@ -1,108 +1,134 @@
 import { Injectable } from '@nestjs/common';
-import { SEED_EQUIPMENT, SEED_PARTS, SEED_TICKETS, SEED_USERS } from './seed';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { Equipment, FieldLog, Part, Ticket, User } from './types';
 
-// In-memory system of record. This is the single seam to replace with a real
-// database (TypeORM/Prisma) later — controllers only talk to this service.
+// System of record backed by Supabase Postgres via Prisma. Controllers only
+// talk to this service, so swapping storage never touches the HTTP layer.
 @Injectable()
 export class DataService {
-  private readonly users: User[] = SEED_USERS;
-  private equipment: Equipment[] = SEED_EQUIPMENT.map((e) => ({ ...e }));
-  private tickets: Ticket[] = SEED_TICKETS.map((t) => ({ ...t }));
-  private logs: FieldLog[] = [];
-  readonly parts: Part[] = SEED_PARTS.map((p) => ({ ...p }));
+  constructor(private readonly prisma: PrismaService) {}
 
   /* ------------------------------- auth -------------------------------- */
 
-  findUser(email: string, password: string): User | undefined {
-    return this.users.find(
-      (u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password,
-    );
+  async findUser(email: string, password: string): Promise<User | undefined> {
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: email.trim(), mode: 'insensitive' }, password },
+    });
+    return (user as User | null) ?? undefined;
   }
 
   /* ----------------------------- equipment ------------------------------ */
 
-  listEquipment(): Equipment[] {
-    return this.equipment;
+  async listEquipment(): Promise<Equipment[]> {
+    const rows = await this.prisma.equipment.findMany({ orderBy: { seq: 'asc' } });
+    return rows as unknown as Equipment[];
   }
 
-  hasEquipment(id: string): boolean {
-    return this.equipment.some((e) => e.id === id);
+  async hasEquipment(id: string): Promise<boolean> {
+    const row = await this.prisma.equipment.findUnique({ where: { id }, select: { id: true } });
+    return row !== null;
   }
 
-  addEquipment(input: Partial<Equipment> & { name: string }): Equipment {
+  async addEquipment(input: Partial<Equipment> & { name: string }): Promise<Equipment> {
     const id =
-      input.id && !this.hasEquipment(input.id)
+      input.id && !(await this.hasEquipment(input.id))
         ? input.id
-        : this.nextId(this.equipment.map((e) => e.id), 'EQ-', 4);
-    const eq: Equipment = {
-      id,
-      name: input.name,
-      type: input.type ?? 'HVAC — CHILLER',
-      client: input.client ?? 'Zenith Towers Facilities',
-      site: input.site ?? 'Lagos',
-      loc: input.loc ?? 'To be confirmed',
-      serial: input.serial ?? `${id}-SN`,
-      install: input.install ?? '14 Jul 2026',
-      due: input.due ?? '14 Oct',
-      dueSort: input.dueSort ?? 1014,
-      status: input.status ?? 'ok',
-      interval: input.interval ?? 'Quarterly',
-      next: input.next ?? '14 Oct 2026',
-      specs: input.specs ?? [],
-      history: input.history ?? [],
-    };
-    this.equipment = [eq, ...this.equipment];
-    return eq;
+        : await this.nextEquipmentId();
+    const created = await this.prisma.equipment.create({
+      data: {
+        id,
+        name: input.name,
+        type: input.type ?? 'HVAC — CHILLER',
+        client: input.client ?? 'Zenith Towers Facilities',
+        site: input.site ?? 'Lagos',
+        loc: input.loc ?? 'To be confirmed',
+        serial: input.serial ?? `${id}-SN`,
+        install: input.install ?? '14 Jul 2026',
+        due: input.due ?? '14 Oct',
+        dueSort: input.dueSort ?? 1014,
+        status: input.status ?? 'ok',
+        interval: input.interval ?? 'Quarterly',
+        next: input.next ?? '14 Oct 2026',
+        specs: (input.specs ?? []) as unknown as Prisma.InputJsonValue,
+        history: (input.history ?? []) as unknown as Prisma.InputJsonValue,
+      },
+    });
+    return created as unknown as Equipment;
+  }
+
+  /* ------------------------------- parts -------------------------------- */
+
+  async listParts(): Promise<Part[]> {
+    // Keep the original inventory ordering (by seed insertion, sku is stable)
+    const rows = await this.prisma.part.findMany();
+    return rows as Part[];
   }
 
   /* ------------------------------ tickets ------------------------------- */
 
-  listTickets(): Ticket[] {
-    return this.tickets;
+  async listTickets(): Promise<Ticket[]> {
+    const rows = await this.prisma.ticket.findMany({ orderBy: { seq: 'desc' } });
+    return rows as unknown as Ticket[];
   }
 
-  addTicket(input: Partial<Ticket> & { eqId: string }): Ticket {
+  async addTicket(input: Partial<Ticket> & { eqId: string }): Promise<Ticket> {
     const id =
-      input.id && !this.tickets.some((t) => t.id === input.id)
+      input.id && !(await this.prisma.ticket.findUnique({ where: { id: input.id }, select: { id: true } }))
         ? input.id
-        : this.nextId(this.tickets.map((t) => t.id), 'TKT-', 4);
-    const ticket: Ticket = {
-      id,
-      title: input.title ?? 'Fault reported — details to follow',
-      eqId: input.eqId,
-      pri: input.pri ?? 'High',
-      tech: input.tech ?? 'Tunde Bakare',
-      status: input.status ?? 'Open',
-      date: input.date ?? '14 Jul',
-      by: input.by ?? 'Office',
-    };
-    this.tickets = [ticket, ...this.tickets];
-    return ticket;
+        : await this.nextTicketId();
+    const created = await this.prisma.ticket.create({
+      data: {
+        id,
+        title: input.title ?? 'Fault reported — details to follow',
+        eqId: input.eqId,
+        pri: input.pri ?? 'High',
+        tech: input.tech ?? 'Tunde Bakare',
+        status: input.status ?? 'Open',
+        date: input.date ?? '14 Jul',
+        by: input.by ?? 'Office',
+      },
+    });
+    return created as unknown as Ticket;
   }
 
   /* ------------------------------- logs --------------------------------- */
 
-  listLogs(eqId?: string): FieldLog[] {
-    return eqId ? this.logs.filter((l) => l.eqId === eqId) : this.logs;
+  async listLogs(eqId?: string): Promise<FieldLog[]> {
+    const rows = await this.prisma.fieldLog.findMany({
+      where: eqId ? { eqId } : undefined,
+      orderBy: { id: 'desc' },
+    });
+    return rows as unknown as FieldLog[];
   }
 
-  addLog(input: Partial<FieldLog> & { eqId: string }): FieldLog {
-    const log: FieldLog = {
-      eqId: input.eqId,
-      date: input.date ?? '14 Jul 2026',
-      tech: input.tech ?? 'Emeka Okafor',
-      tag: input.tag ?? 'FIELD LOG',
-      issue: input.issue ?? 'Routine preventive maintenance — no faults found.',
-      work: input.work ?? 'Full PM checklist completed per AMC scope; unit tested and returned to service.',
-      notes: input.notes ?? 'No further action required before next scheduled service.',
-      parts: Array.isArray(input.parts) ? input.parts : [],
-    };
-    this.logs = [log, ...this.logs];
-    return log;
+  async addLog(input: Partial<FieldLog> & { eqId: string }): Promise<FieldLog> {
+    const created = await this.prisma.fieldLog.create({
+      data: {
+        eqId: input.eqId,
+        date: input.date ?? '14 Jul 2026',
+        tech: input.tech ?? 'Emeka Okafor',
+        tag: input.tag ?? 'FIELD LOG',
+        issue: input.issue ?? 'Routine preventive maintenance — no faults found.',
+        work: input.work ?? 'Full PM checklist completed per AMC scope; unit tested and returned to service.',
+        notes: input.notes ?? 'No further action required before next scheduled service.',
+        parts: (Array.isArray(input.parts) ? input.parts : []) as unknown as Prisma.InputJsonValue,
+      },
+    });
+    return created as unknown as FieldLog;
   }
 
   /* ------------------------------ helpers ------------------------------- */
+
+  private async nextEquipmentId(): Promise<string> {
+    const ids = await this.prisma.equipment.findMany({ select: { id: true } });
+    return this.nextId(ids.map((r) => r.id), 'EQ-', 4);
+  }
+
+  private async nextTicketId(): Promise<string> {
+    const ids = await this.prisma.ticket.findMany({ select: { id: true } });
+    return this.nextId(ids.map((r) => r.id), 'TKT-', 4);
+  }
 
   private nextId(ids: string[], prefix: string, pad: number): string {
     const max = ids.reduce((m, id) => {

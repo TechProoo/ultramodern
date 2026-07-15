@@ -7,13 +7,13 @@ export class TicketsController {
   constructor(private readonly data: DataService) {}
 
   @Get()
-  list(): Ticket[] {
+  list(): Promise<Ticket[]> {
     return this.data.listTickets();
   }
 
   @Post()
-  create(@Body() body: Partial<Ticket>): Ticket {
-    if (!body || typeof body.eqId !== 'string' || !this.data.hasEquipment(body.eqId)) {
+  async create(@Body() body: Partial<Ticket>): Promise<Ticket> {
+    if (!body || typeof body.eqId !== 'string' || !(await this.data.hasEquipment(body.eqId))) {
       throw new BadRequestException('eqId must reference existing equipment');
     }
     return this.data.addTicket({ ...body, eqId: body.eqId });

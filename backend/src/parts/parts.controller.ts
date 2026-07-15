@@ -7,7 +7,7 @@ export class PartsController {
   constructor(private readonly data: DataService) {}
 
   @Get()
-  list(): Part[] {
-    return this.data.parts;
+  list(): Promise<Part[]> {
+    return this.data.listParts();
   }
 }

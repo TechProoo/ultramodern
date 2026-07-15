@@ -6,9 +6,12 @@ NestJS backend for the AMC Manager frontend in `../frontend`.
 
 ```bash
 npm install
-npm run start:dev   # watch mode on http://localhost:3000
-npm run build       # compile to dist/
-npm run start:prod  # run the compiled build
+cp .env.example .env          # fill in the Supabase database password
+npx prisma migrate deploy     # apply migrations to the database
+npx prisma db seed            # idempotent — inserts demo data if missing
+npm run start:dev             # watch mode on http://localhost:3000
+npm run build                 # compile to dist/
+npm run start:prod            # run the compiled build
 ```
 
 CORS is enabled for the Vite dev server (`http://localhost:5173`) and preview
@@ -30,13 +33,19 @@ CORS is enabled for the Vite dev server (`http://localhost:5173`) and preview
 ## Architecture
 
 ```text
+prisma/
+  schema.prisma         models: User, Equipment, Part, Ticket, FieldLog
+  seed.ts               idempotent seed (equipment, parts, tickets, demo users)
+  migrations/           SQL migration history
 src/
   main.ts               bootstrap + CORS
   app.module.ts         wires the feature modules
+  prisma/
+    prisma.service.ts   PrismaClient wrapper (connects on module init)
   data/
     types.ts            domain types (mirror the frontend's)
-    seed.ts             seed records (equipment, parts, tickets, demo users)
-    data.service.ts     in-memory system of record — the seam to replace with a DB
+    seed.ts             seed records shared with prisma/seed.ts
+    data.service.ts     Prisma-backed system of record
     data.module.ts      global module exposing DataService
   auth/                 POST /auth/login
   equipment/            GET+POST /equipment
@@ -45,9 +54,11 @@ src/
   logs/                 GET+POST /logs
 ```
 
-Storage is **in-memory**: data resets on every restart (including watch-mode
-reloads). `DataService` is the single seam to swap for a real database
-(Prisma/TypeORM) — controllers only talk to it.
+Storage is **Supabase Postgres** via Prisma. App queries go through the
+transaction-mode pooler (`DATABASE_URL`, pgbouncer); migrations use the
+session-mode pooler (`DIRECT_URL`). Credentials live in `.env` (gitignored) —
+see `.env.example`. `DataService` remains the single storage seam; controllers
+only talk to it.
 
 Demo accounts (also listed on the frontend sign-in screen):
 

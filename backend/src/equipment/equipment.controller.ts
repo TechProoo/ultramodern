@@ -7,12 +7,12 @@ export class EquipmentController {
   constructor(private readonly data: DataService) {}
 
   @Get()
-  list(): Equipment[] {
+  list(): Promise<Equipment[]> {
     return this.data.listEquipment();
   }
 
   @Post()
-  create(@Body() body: Partial<Equipment>): Equipment {
+  create(@Body() body: Partial<Equipment>): Promise<Equipment> {
     if (!body || typeof body.name !== 'string' || !body.name.trim()) {
       throw new BadRequestException('name is required');
     }
