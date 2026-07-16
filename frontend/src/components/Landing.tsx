@@ -1,5 +1,5 @@
+import { useNavigate } from 'react-router-dom'
 import { BRAND } from '../theme'
-import { useStore } from '../store'
 import { mono } from './ui'
 import heroImg from '../assets/hero_img.jpeg'
 
@@ -24,8 +24,8 @@ const stats = [
 ]
 
 export default function Landing() {
-  const { setRole } = useStore()
-  const goLogin = () => setRole('login')
+  const navigate = useNavigate()
+  const goLogin = () => navigate('/login')
 
   return (
     <div style={{ flex: 1, background: '#FFFFFF', color: '#1c1c1c', overflow: 'auto', minHeight: 0 }}>

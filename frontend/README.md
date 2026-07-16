@@ -37,6 +37,22 @@ Each platform is self-contained: its own header/chrome and its own Sign out. The
 cross-platform navigation — e.g. the admin's "Log Maintenance Visit" is handled inside the
 admin console rather than jumping into the technician app.
 
+### Routing (React Router)
+
+Each platform has a real URL: `/` (landing), `/login`, `/admin`, `/tech`, `/client`.
+Routes are **role-guarded** in `src/App.tsx` from the persisted session:
+
+- signed-out visitors to a platform route are sent to `/login`;
+- signed-in users who hit a route for a different role are bounced to their own
+  platform (`/${session.role}`) — so typing `/admin` as a client never crosses over;
+- `/login` redirects already-authenticated users to their platform;
+- unknown paths fall back to `/`.
+
+Because the session is restored from `localStorage`, deep-linking or reloading a
+platform URL lands you back on the right screen. In production the SPA fallback
+(`public/_redirects` + `netlify.toml`) serves `index.html` for these paths so a hard
+refresh doesn't 404.
+
 The underlying data model still reflects one shared business (a single context store,
 `src/store.tsx`, persisted to `localStorage`) — this is the shape a real backend database
 would take, so tickets and visit logs created by one role would surface to the others once

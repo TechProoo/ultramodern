@@ -29,8 +29,8 @@ export interface DecoratedEquipment extends Equipment {
 }
 
 interface Store {
-  role: Role
-  setRole: (r: Role) => void
+  // Auth is the single source of truth; routing (React Router) derives the
+  // visible platform from `session` via route guards.
   session: Session | null
   login: (s: Session) => void
   loginAs: (role: Session['role']) => Promise<void>
@@ -66,9 +66,8 @@ function nextIdFrom(ids: string[], prefix: string, pad: number): string {
 const warnApi = (what: string) => (err: unknown) =>
   console.warn(`AMC API: failed to persist ${what} — change is local-only this session.`, err)
 
-export function StoreProvider({ children, startRole = 'landing' }: { children: ReactNode; startRole?: Role }) {
+export function StoreProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(restoreSession)
-  const [role, setRole] = useState<Role>(() => session?.role ?? startRole)
   const [selId, setSelId] = useState('EQ-0117')
   const [techScreen, setTechScreen] = useState<TechScreen>('scan')
   // Seed data renders instantly; the backend replaces it as the source of
@@ -104,11 +103,11 @@ export function StoreProvider({ children, startRole = 'landing' }: { children: R
     }
     const selected = decorate(equipment.find((e) => e.id === selId) ?? equipment[0])
     return {
-      role, setRole, selId, setSelId, techScreen, setTechScreen,
+      selId, setSelId, techScreen, setTechScreen,
       session,
-      login: (s) => { setSession(s); setRole(s.role); setTechScreen('scan') },
-      loginAs: async (r) => { const s = await signInAs(r); setSession(s); setRole(r); setTechScreen('scan') },
-      logout: () => { clearSession(); setSession(null); setRole('landing') },
+      login: (s) => { setSession(s); setTechScreen('scan') },
+      loginAs: async (r) => { const s = await signInAs(r); setSession(s); setTechScreen('scan') },
+      logout: () => { clearSession(); setSession(null); setTechScreen('scan') },
       equipment,
       addEquipment: (e) => {
         setEquipment((prev) => [e, ...prev])
@@ -130,7 +129,7 @@ export function StoreProvider({ children, startRole = 'landing' }: { children: R
       },
       decorate, selected,
     }
-  }, [role, session, selId, techScreen, equipment, parts, tickets, extraLogs, lastLog])
+  }, [session, selId, techScreen, equipment, parts, tickets, extraLogs, lastLog])
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>
 }

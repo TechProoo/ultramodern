@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BRAND, ACCENT } from '../../theme'
 import { CLIENT_REPORTS, CLIENT_NAME } from '../../data'
 import { useStore } from '../../store'
@@ -6,6 +7,8 @@ import { mono } from '../ui'
 
 export default function ClientPortal() {
   const { decorate, equipment, logout } = useStore()
+  const navigate = useNavigate()
+  const signOut = () => { logout(); navigate('/') }
   const [modal, setModal] = useState(false)
 
   const clientEq = useMemo(() => equipment.filter((e) => e.client === CLIENT_NAME).map(decorate), [equipment, decorate])
@@ -26,7 +29,7 @@ export default function ClientPortal() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span style={{ background: '#EEF1F6', color: '#3C4C61', fontFamily: mono, fontSize: 10.5, padding: '6px 12px', borderRadius: 5 }}>AMC-2024-118 · VALID TO MAR 2027</span>
             <button className="hv-brand" onClick={() => setModal(true)} style={{ border: 'none', cursor: 'pointer', background: BRAND, color: '#FFFFFF', fontWeight: 700, fontSize: 13, padding: '11px 18px', borderRadius: 7 }}>Report a Fault</button>
-            <button className="hv-outline" onClick={logout} style={{ border: '1px solid #D5D8DC', cursor: 'pointer', background: 'transparent', color: '#5B6470', fontSize: 12.5, fontWeight: 600, padding: '10px 14px', borderRadius: 7, whiteSpace: 'nowrap' }}>Sign out</button>
+            <button className="hv-outline" onClick={signOut} style={{ border: '1px solid #D5D8DC', cursor: 'pointer', background: 'transparent', color: '#5B6470', fontSize: 12.5, fontWeight: 600, padding: '10px 14px', borderRadius: 7, whiteSpace: 'nowrap' }}>Sign out</button>
           </div>
         </div>
       </div>

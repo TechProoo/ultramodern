@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BRAND } from '../../theme'
 import { useStore, type FieldLog } from '../../store'
 import { mono, PhotoPlaceholder } from '../ui'
@@ -8,6 +9,8 @@ import { buildReportValues } from '../../reportValues'
 // mockup on a dark backdrop — distinct from the admin console and client portal.
 export default function TechApp() {
   const { techScreen, session, logout } = useStore()
+  const navigate = useNavigate()
+  const signOut = () => { logout(); navigate('/') }
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'radial-gradient(ellipse at 50% 0%, #16283F 0%, #0B1626 65%)' }}>
       {/* field-app chrome */}
@@ -19,7 +22,7 @@ export default function TechApp() {
             <div style={{ color: '#7A8CA3', fontFamily: mono, fontSize: 9, letterSpacing: '1.2px' }}>FIELD TECHNICIAN{session ? ` · ${session.name.toUpperCase()}` : ''}</div>
           </div>
         </div>
-        <button onClick={logout} style={{ border: '1px solid rgba(255,255,255,0.22)', cursor: 'pointer', background: 'transparent', color: '#C7D2E0', fontSize: 12, fontWeight: 600, padding: '8px 13px', borderRadius: 7, whiteSpace: 'nowrap' }}>Sign out</button>
+        <button onClick={signOut} style={{ border: '1px solid rgba(255,255,255,0.22)', cursor: 'pointer', background: 'transparent', color: '#C7D2E0', fontSize: 12, fontWeight: 600, padding: '8px 13px', borderRadius: 7, whiteSpace: 'nowrap' }}>Sign out</button>
       </div>
 
       <div style={{ flex: 1, display: 'grid', placeItems: 'center', padding: '6px 16px 28px', minHeight: 0 }}>

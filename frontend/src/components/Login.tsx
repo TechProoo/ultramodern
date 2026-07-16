@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BRAND } from '../theme'
 import { useStore } from '../store'
 import { signIn, DEMO_USERS, type Session } from '../auth'
@@ -14,7 +15,8 @@ const labelStyle = { fontFamily: mono, fontSize: 10, letterSpacing: '1px', color
 const inputStyle = { width: '100%', boxSizing: 'border-box', padding: '12px 13px', border: '1px solid #D4D7CF', borderRadius: 8, fontSize: 14, color: '#1c1c1c' } as const
 
 export default function Login() {
-  const { setRole, login, loginAs } = useStore()
+  const navigate = useNavigate()
+  const { login, loginAs } = useStore()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -91,7 +93,7 @@ export default function Login() {
           })}
         </div>
 
-        <button className="hv-link" onClick={() => setRole('landing')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#6B7A8E', fontSize: 12.5, fontWeight: 600, padding: 0, marginTop: 18 }}>← Back to site</button>
+        <button className="hv-link" onClick={() => navigate('/')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#6B7A8E', fontSize: 12.5, fontWeight: 600, padding: 0, marginTop: 18 }}>← Back to site</button>
       </div>
     </div>
   )

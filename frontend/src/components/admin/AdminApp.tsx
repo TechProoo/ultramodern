@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BRAND, ACCENT, PRI, STAT } from '../../theme'
 import { TECHS, type Equipment } from '../../data'
 import { useStore } from '../../store'
@@ -81,6 +82,8 @@ export default function AdminApp() {
 
 function AdminTopBar() {
   const { session, logout } = useStore()
+  const navigate = useNavigate()
+  const signOut = () => { logout(); navigate('/') }
   return (
     <div style={{ background: '#0E1E33', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', gap: 16, flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -97,7 +100,7 @@ function AdminTopBar() {
             <div style={{ fontFamily: mono, fontSize: 9.5, color: '#7A8CA3', letterSpacing: '0.6px' }}>{session.email}</div>
           </div>
         )}
-        <button onClick={logout} style={{ border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer', background: 'transparent', color: '#C7D2E0', fontSize: 12.5, fontWeight: 600, padding: '9px 14px', borderRadius: 7, whiteSpace: 'nowrap' }}>Sign out</button>
+        <button onClick={signOut} style={{ border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer', background: 'transparent', color: '#C7D2E0', fontSize: 12.5, fontWeight: 600, padding: '9px 14px', borderRadius: 7, whiteSpace: 'nowrap' }}>Sign out</button>
       </div>
     </div>
   )
