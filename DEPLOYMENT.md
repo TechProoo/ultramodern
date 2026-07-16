@@ -21,12 +21,15 @@ the frontend URL for the backend's CORS. Order:
 
 1. [railway.com](https://railway.com) → **New Project** → **Deploy from GitHub
    repo** → pick `TechProoo/ultramodern`.
-2. Open the service → **Settings**:
-   - **Root Directory**: `backend`
-   - Build/start are read from `backend/railway.json` (build `npm run build`,
-     start `npm run start:migrate`, which runs `prisma migrate deploy` then
-     `node dist/main`). `prisma generate` runs automatically via the
-     `postinstall` script.
+2. Open the service → **Settings** → **Source / Build**:
+   - **⚠️ Root Directory**: `backend` — **this is required.** This is a monorepo;
+     without it Railway builds from the repo root, finds no `package.json`, and
+     fails with *"Railpack could not determine how to build the app."* Set it,
+     then redeploy.
+   - Once Root Directory is `backend`, Railway reads `backend/railway.json`
+     (build `npm run build`, start `npm run start:migrate` → `prisma migrate
+     deploy` then `node dist/main`). `prisma generate` runs automatically via
+     the `postinstall` script.
 3. **Variables** — add:
    | Key            | Value                                                                 |
    | -------------- | --------------------------------------------------------------------- |
@@ -79,3 +82,23 @@ the frontend URL for the backend's CORS. Order:
   Railway dashboard. Consider rotating the Supabase DB password before going
   fully public (Supabase → Project Settings → Database), then update
   `DATABASE_URL`/`DIRECT_URL` in Railway and your local `.env`.
+
+---
+
+## Troubleshooting
+
+**Railway: "Railpack could not determine how to build the app"** (and the log
+lists `backend/` and `frontend/` at `./`) — the service is building from the
+repo root. Set **Settings → Root Directory = `backend`** and redeploy. Railway
+only reads `backend/railway.json` once the root directory points at `backend`.
+
+**Railway: app boots then crashes, or `/equipment` errors** — the `DATABASE_URL`
+and `DIRECT_URL` variables aren't set (or are wrong). Add them in **Variables**
+from your local `backend/.env`, then redeploy. `start:migrate` needs
+`DIRECT_URL` to reach the database.
+
+**Frontend loads but no data / CORS errors in the browser console** — either
+`VITE_API_URL` (Netlify) doesn't point at the Railway URL, or `CORS_ORIGIN`
+(Railway) doesn't match the Netlify origin. Both must be set with **no trailing
+slash**, and changing `VITE_API_URL` requires a fresh Netlify build to take
+effect (env vars are baked in at build time for Vite).
