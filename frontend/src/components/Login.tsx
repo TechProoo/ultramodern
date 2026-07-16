@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { BRAND } from '../theme'
 import { useStore } from '../store'
 import { signIn } from '../auth'
-import { mono } from './ui'
+import { mono, Logo } from './ui'
 
 const labelStyle = { fontFamily: mono, fontSize: 10, letterSpacing: '1px', color: '#6B7A8E', marginBottom: 5 } as const
 const inputStyle = { width: '100%', boxSizing: 'border-box', padding: '12px 13px', border: '1px solid #D4D7CF', borderRadius: 8, fontSize: 14, color: '#1c1c1c' } as const
@@ -39,11 +39,8 @@ export default function Login() {
     <div style={{ flex: 1, background: '#F5F6F8', display: 'grid', placeItems: 'center', padding: 24, overflow: 'auto', minHeight: 0 }}>
       <div style={{ width: 400, maxWidth: '100%', background: '#FFFFFF', border: '1px solid #E3E5E8', boxShadow: '0 12px 40px rgba(28,28,28,0.10)', borderRadius: 14, padding: '30px 28px', animation: 'fadeUp .3s ease', boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
-          <div style={{ width: 36, height: 36, background: BRAND, display: 'grid', placeItems: 'center', fontWeight: 800, color: '#FFFFFF', fontSize: 15 }}>UE</div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 15 }}>AMC Manager</div>
-            <div style={{ fontFamily: mono, fontSize: 9, letterSpacing: '1.2px', color: '#8A94A2' }}>ULTRAMODERN ENGINEERING LTD</div>
-          </div>
+          <Logo height={32} />
+          <div style={{ fontWeight: 800, fontSize: 15 }}>AMC Manager</div>
         </div>
         <h2 style={{ margin: '20px 0 0 0', fontSize: 20, fontWeight: 800 }}>Sign in</h2>
         <div style={{ fontSize: 13, color: '#6B7A8E', marginTop: 6, lineHeight: 1.5 }}>

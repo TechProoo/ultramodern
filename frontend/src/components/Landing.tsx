@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { BRAND } from '../theme'
-import { mono } from './ui'
+import { mono, Logo } from './ui'
 import heroImg from '../assets/hero_img.jpeg'
 
 const services = [
@@ -32,11 +32,8 @@ export default function Landing() {
       {/* top nav */}
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 38, height: 38, background: BRAND, display: 'grid', placeItems: 'center', fontWeight: 800, color: '#FFFFFF', fontSize: 16 }}>UE</div>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: '0.2px' }}>ULTRAMODERN ENGINEERING</div>
-            <div style={{ color: '#6B7280', fontFamily: mono, fontSize: 9.5, letterSpacing: '1.4px' }}>HVAC · PLUMBING · FIRE SAFETY · ELECTRICAL</div>
-          </div>
+          <Logo height={34} />
+          <div style={{ color: '#6B7280', fontFamily: mono, fontSize: 9.5, letterSpacing: '1.4px' }}>HVAC · PLUMBING · FIRE SAFETY · ELECTRICAL</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
           <a href="#services" style={{ color: '#1c1c1c', fontSize: 13.5, fontWeight: 600 }}>Services</a>

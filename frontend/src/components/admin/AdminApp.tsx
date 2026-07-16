@@ -4,7 +4,7 @@ import { BRAND, ACCENT, PRI, STAT } from '../../theme'
 import { TECHS, type Equipment } from '../../data'
 import { useStore } from '../../store'
 import { useWindowWidth } from '../../useWindowWidth'
-import { Badge, mono, MonoLabel, PhotoPlaceholder, QrThumb } from '../ui'
+import { Badge, mono, MonoLabel, PhotoPlaceholder, QrThumb, Logo } from '../ui'
 import { buildReportValues } from '../../reportValues'
 import { api, ApiError, type UserAccount } from '../../api'
 
@@ -90,7 +90,7 @@ function AdminTopBar() {
   return (
     <div style={{ background: '#0E1E33', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', gap: 16, flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ width: 34, height: 34, background: BRAND, display: 'grid', placeItems: 'center', fontWeight: 800, color: '#FFFFFF', fontSize: 15, letterSpacing: '-0.5px' }}>UE</div>
+        <Logo height={28} onDark />
         <div>
           <div style={{ color: '#F4F6F3', fontWeight: 700, fontSize: 15, letterSpacing: '0.2px' }}>AMC Manager</div>
           <div style={{ color: '#7A8CA3', fontFamily: mono, fontSize: 10, letterSpacing: '1.2px' }}>ADMIN CONSOLE · OPERATIONS DESK</div>
@@ -460,11 +460,8 @@ function ReportPreview({ padMain, narrow }: { padMain: string; narrow: boolean }
         <div className="print-area" style={{ background: '#FFFFFF', border: '1px solid #D8DAD2', boxShadow: '0 8px 30px rgba(10,22,38,0.14)', borderRadius: 3, overflow: 'hidden' }}>
           <div style={{ background: '#0E1E33', padding: '22px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 38, height: 38, background: BRAND, display: 'grid', placeItems: 'center', fontWeight: 800, color: '#FFFFFF', fontSize: 16 }}>UE</div>
-              <div>
-                <div style={{ color: '#F4F6F3', fontWeight: 800, fontSize: 15, letterSpacing: '0.3px' }}>ULTRAMODERN ENGINEERING LIMITED</div>
-                <div style={{ color: '#7A8CA3', fontFamily: mono, fontSize: 9.5, letterSpacing: '1.4px', marginTop: 2 }}>HVAC · PLUMBING · FIRE SAFETY · ELECTRICAL</div>
-              </div>
+              <Logo height={32} onDark />
+              <div style={{ color: '#7A8CA3', fontFamily: mono, fontSize: 9.5, letterSpacing: '1.4px' }}>HVAC · PLUMBING · FIRE SAFETY · ELECTRICAL</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ color: BRAND, fontFamily: mono, fontSize: 11, letterSpacing: '1.5px', fontWeight: 600 }}>AMC SERVICE REPORT</div>

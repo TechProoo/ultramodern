@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BRAND } from '../../theme'
 import { useStore, type FieldLog } from '../../store'
-import { mono, PhotoPlaceholder } from '../ui'
+import { mono, PhotoPlaceholder, Logo } from '../ui'
 import { buildReportValues } from '../../reportValues'
 
 // The technician experience is its own mobile field app, framed inside a phone
@@ -16,7 +16,7 @@ export default function TechApp() {
       {/* field-app chrome */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '12px 18px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 30, height: 30, background: BRAND, display: 'grid', placeItems: 'center', fontWeight: 800, color: '#FFFFFF', fontSize: 13, letterSpacing: '-0.5px' }}>UE</div>
+          <Logo height={24} onDark />
           <div>
             <div style={{ color: '#F4F6F3', fontWeight: 700, fontSize: 13.5 }}>AMC Field App</div>
             <div style={{ color: '#7A8CA3', fontFamily: mono, fontSize: 9, letterSpacing: '1.2px' }}>FIELD TECHNICIAN{session ? ` · ${session.name.toUpperCase()}` : ''}</div>
@@ -323,8 +323,7 @@ function MobileReport() {
       <div style={{ background: '#FFFFFF', border: '1px solid #D8DAD2', borderRadius: 8, overflow: 'hidden', boxShadow: '0 6px 20px rgba(10,22,38,0.12)' }}>
         <div style={{ background: '#0E1E33', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <div style={{ width: 28, height: 28, background: BRAND, display: 'grid', placeItems: 'center', fontWeight: 800, color: '#0B1626', fontSize: 12 }}>UE</div>
-            <div style={{ color: '#F4F6F3', fontWeight: 800, fontSize: 11.5 }}>ULTRAMODERN ENGINEERING</div>
+            <Logo height={20} onDark />
           </div>
           <div style={{ color: BRAND, fontFamily: mono, fontSize: 9, letterSpacing: '1px', textAlign: 'right', whiteSpace: 'nowrap', flex: 'none' }}>SERVICE REPORT<br />{r.rRef}</div>
         </div>

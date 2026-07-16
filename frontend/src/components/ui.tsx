@@ -1,12 +1,17 @@
 import type { CSSProperties, ReactNode } from 'react'
+import logoImg from '../assets/logo.jpeg'
 
 export const mono = "'IBM Plex Mono', monospace"
 
-// The square "UE" brand mark used across headers.
-export function LogoMark({ size = 38, font = 16 }: { size?: number; font?: number }) {
+// Ultramodern Engineering's logo (gear mark + wordmark). The source file has
+// a white background baked in, so on dark chrome it's set inside a white
+// rounded chip; on light backgrounds it sits directly on the page.
+export function Logo({ height = 32, onDark = false, style }: { height?: number; onDark?: boolean; style?: CSSProperties }) {
+  const img = <img src={logoImg} alt="Ultramodern Engineering Limited" style={{ height, width: 'auto', display: 'block' }} />
+  if (!onDark) return <div style={{ flex: 'none', ...style }}>{img}</div>
   return (
-    <div style={{ width: size, height: size, background: '#0274be', display: 'grid', placeItems: 'center', fontWeight: 800, color: '#FFFFFF', fontSize: font, letterSpacing: '-0.5px', flex: 'none' }}>
-      UE
+    <div style={{ background: '#FFFFFF', borderRadius: 8, padding: '5px 10px', display: 'inline-flex', alignItems: 'center', flex: 'none', ...style }}>
+      {img}
     </div>
   )
 }
