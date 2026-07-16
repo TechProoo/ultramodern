@@ -65,18 +65,16 @@ there; it listens on `http://localhost:3000`). Override the base URL with
 `VITE_API_URL` in a `.env` file if needed.
 
 - **API client**: `src/api.ts` — typed fetch wrappers for every endpoint.
-- **Auth** (`src/auth.ts`): the sign-in form POSTs to `/auth/login`; 401 shows an
-  invalid-credentials error. The session is stored in `localStorage` and restored on
-  reload; Sign out clears it. Demo accounts:
-  - `admin@ultramoderneng.ng` / `admin123`
-  - `tech@ultramoderneng.ng` / `tech123`
-  - `client@zenithtowers.ng` / `client123`
+- **Auth** (`src/auth.ts`): email + password only, POSTed to `/auth/login`; 401 shows
+  an invalid-credentials error, network failure shows a "cannot reach server" error.
+  The session is stored in `localStorage` and restored on reload; Sign out clears it.
+  There is no self-service signup and no demo shortcut — **accounts are created by an
+  admin** in the console's *Users & Access* screen (Field Technician and Client roles).
+  The admin account itself is seeded in the backend.
 - **Data** (`src/store.tsx`): equipment, parts, tickets and visit logs are fetched from
   the API on load; creates POST back to it. The store renders bundled seed data
-  instantly and swaps in server data when the fetch lands.
-- **Offline fallback**: if the API is unreachable, sign-in falls back to a local check
-  of the same demo accounts and the app runs on seed data (a console warning notes that
-  changes are local-only).
+  instantly and swaps in server data when the fetch lands. If the API is unreachable,
+  the app runs read-only on seed data (sign-in requires the API).
 - **Fully wired interactions**: Add Equipment modal (generates the next `EQ-xxxx` id),
   sequential ticket ids (`TKT-1043`, `TKT-1044`, …), manual asset-code entry in the
   technician scanner (by id or serial), "Download PDF" prints just the report sheet via
@@ -87,7 +85,7 @@ there; it listens on `http://localhost:3000`). Override the base URL with
 ```text
 src/
   App.tsx              role routing shell
-  auth.ts              demo-account auth + session persistence
+  auth.ts              API-backed auth + session persistence
   store.tsx            shared cross-role state (context) + localStorage persistence
   data.ts              equipment, parts, tickets, reports (seed data)
   theme.ts             brand + status/priority color tokens

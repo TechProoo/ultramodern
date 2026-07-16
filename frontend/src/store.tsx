@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { EQ, INITIAL_TICKETS, PARTS, type Equipment, type Part, type Ticket } from './data'
 import { BADGE, type StatusKey } from './theme'
-import { restoreSession, signInAs, signOut as clearSession, type Session } from './auth'
+import { restoreSession, signOut as clearSession, type Session } from './auth'
 import { api } from './api'
 
 export type Role = 'landing' | 'login' | 'admin' | 'tech' | 'client'
@@ -33,7 +33,6 @@ interface Store {
   // visible platform from `session` via route guards.
   session: Session | null
   login: (s: Session) => void
-  loginAs: (role: Session['role']) => Promise<void>
   logout: () => void
   selId: string
   setSelId: (id: string) => void
@@ -106,7 +105,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       selId, setSelId, techScreen, setTechScreen,
       session,
       login: (s) => { setSession(s); setTechScreen('scan') },
-      loginAs: async (r) => { const s = await signInAs(r); setSession(s); setTechScreen('scan') },
       logout: () => { clearSession(); setSession(null); setTechScreen('scan') },
       equipment,
       addEquipment: (e) => {

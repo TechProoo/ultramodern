@@ -36,8 +36,21 @@ const get = <T>(path: string) => request<T>(path)
 const post = <T>(path: string, body: unknown) =>
   request<T>(path, { method: 'POST', body: JSON.stringify(body) })
 
+// A user account as returned by the API — never includes the password.
+export interface UserAccount {
+  email: string
+  name: string
+  role: Session['role']
+  title: string
+}
+
 export const api = {
   login: (email: string, password: string) => post<Session>('/auth/login', { email, password }),
+  users: {
+    list: () => get<UserAccount[]>('/users'),
+    create: (u: { email: string; password: string; name: string; role: 'tech' | 'client' }) =>
+      post<UserAccount>('/users', u),
+  },
   equipment: {
     list: () => get<Equipment[]>('/equipment'),
     create: (e: Equipment) => post<Equipment>('/equipment', e),

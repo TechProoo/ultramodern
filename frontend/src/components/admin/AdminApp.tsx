@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BRAND, ACCENT, PRI, STAT } from '../../theme'
 import { TECHS, type Equipment } from '../../data'
@@ -6,8 +6,9 @@ import { useStore } from '../../store'
 import { useWindowWidth } from '../../useWindowWidth'
 import { Badge, mono, MonoLabel, PhotoPlaceholder, QrThumb } from '../ui'
 import { buildReportValues } from '../../reportValues'
+import { api, ApiError, type UserAccount } from '../../api'
 
-type Screen = 'register' | 'detail' | 'schedule' | 'faults' | 'parts' | 'report'
+type Screen = 'register' | 'detail' | 'schedule' | 'faults' | 'parts' | 'report' | 'users'
 
 export default function AdminApp() {
   const store = useStore()
@@ -26,6 +27,7 @@ export default function AdminApp() {
     { key: 'faults', label: 'Fault Tickets', badge: openTickets },
     { key: 'parts', label: 'Spare Parts', badge: lowCount },
     { key: 'report', label: 'Service Reports' },
+    { key: 'users', label: 'Users & Access' },
   ]
   const activeKey: Screen = screen === 'detail' ? 'register' : screen
 
@@ -70,6 +72,7 @@ export default function AdminApp() {
         {screen === 'faults' && <Faults padMain={padMain} onNew={() => setFaultModal(true)} />}
         {screen === 'parts' && <Parts padMain={padMain} narrow={narrow} lowCount={lowCount} />}
         {screen === 'report' && <ReportPreview padMain={padMain} narrow={narrow} />}
+        {screen === 'users' && <UsersScreen padMain={padMain} />}
 
         {faultModal && <FaultModal onClose={() => setFaultModal(false)} />}
       </div>
@@ -784,6 +787,155 @@ function LogVisitModal({ onClose, onLogged }: { onClose: () => void; onLogged: (
         </div>
 
         <button className="hv-brand" onClick={submit} style={{ marginTop: 18, width: '100%', border: 'none', cursor: 'pointer', background: BRAND, color: '#FFFFFF', fontWeight: 700, fontSize: 14, padding: 13, borderRadius: 8 }}>Save Visit &amp; Compile Report</button>
+      </div>
+    </div>
+  )
+}
+
+/* ---------------------------- Users & Access ----------------------------- */
+
+const ROLE_BADGE: Record<string, { l: string; bg: string; fg: string }> = {
+  admin: { l: 'ADMIN', bg: '#E9EDF4', fg: '#2A466B' },
+  tech: { l: 'FIELD TECH', bg: '#DCEEE3', fg: '#166A45' },
+  client: { l: 'CLIENT', bg: '#FCEFD6', fg: '#8A5A0B' },
+}
+
+const USER_COLS = '1.4fr 1.8fr 120px 1fr'
+
+// Admins create Field Technician and Client accounts here — the only way to
+// get access, since the sign-in screen has no self-service signup.
+function UsersScreen({ padMain }: { padMain: string }) {
+  const [users, setUsers] = useState<UserAccount[]>([])
+  const [loadErr, setLoadErr] = useState('')
+  const [loaded, setLoaded] = useState(false)
+  const [modal, setModal] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    api.users.list()
+      .then((u) => { if (!cancelled) { setUsers(u); setLoaded(true) } })
+      .catch(() => { if (!cancelled) { setLoadErr('Could not load users — the API is unreachable.'); setLoaded(true) } })
+    return () => { cancelled = true }
+  }, [])
+
+  return (
+    <div style={{ padding: padMain, animation: 'fadeUp .3s ease', maxWidth: 1080 }}>
+      {modal && <AddUserModal onClose={() => setModal(false)} onCreated={(u) => setUsers((prev) => [...prev, u])} />}
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, letterSpacing: '-0.3px' }}>Users &amp; Access</h1>
+          <MonoLabel style={{ marginTop: 4, fontSize: 11, letterSpacing: '0.8px' }}>
+            {loaded && !loadErr ? `${users.length} ACCOUNTS · ` : ''}FIELD TECHNICIAN &amp; CLIENT ACCOUNTS ARE CREATED HERE
+          </MonoLabel>
+        </div>
+        <button className="hv-brand" onClick={() => setModal(true)} style={{ border: 'none', cursor: 'pointer', background: BRAND, color: '#FFFFFF', fontWeight: 700, fontSize: 13, padding: '11px 18px', borderRadius: 7 }}>+ Add User</button>
+      </div>
+
+      {loadErr && (
+        <div style={{ marginTop: 18, background: '#FBE2D5', border: '1px solid #F0C4AC', borderRadius: 8, padding: '12px 16px', fontSize: 13, fontWeight: 600, color: '#8A3410' }}>{loadErr}</div>
+      )}
+
+      <div style={{ marginTop: 20, background: '#FFFFFF', border: '1px solid #E0E2DA', borderRadius: 10, overflowX: 'auto' }}>
+        <div style={{ minWidth: 680 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: USER_COLS, gap: 12, padding: '10px 18px', background: '#F7F8F4', borderBottom: '1px solid #E0E2DA', fontFamily: mono, fontSize: 10, letterSpacing: '1px', color: '#6B7A8E' }}>
+            <div>NAME</div><div>EMAIL</div><div>ROLE</div><div>TITLE</div>
+          </div>
+          {users.map((u) => {
+            const b = ROLE_BADGE[u.role] ?? ROLE_BADGE.client
+            return (
+              <div key={u.email} className="hv-row" style={{ display: 'grid', gridTemplateColumns: USER_COLS, gap: 12, alignItems: 'center', padding: '13px 18px', borderBottom: '1px solid #EEF0E9' }}>
+                <div style={{ fontWeight: 700, fontSize: 13.5 }}>{u.name}</div>
+                <div style={{ fontFamily: mono, fontSize: 11.5, color: '#3C4C61' }}>{u.email}</div>
+                <div><Badge label={b.l} bg={b.bg} fg={b.fg} /></div>
+                <div style={{ fontSize: 12.5, color: '#6B7A8E' }}>{u.title}</div>
+              </div>
+            )
+          })}
+          {loaded && !loadErr && users.length === 0 && (
+            <div style={{ padding: '18px', fontSize: 13, color: '#6B7A8E' }}>No accounts yet — add the first one.</div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AddUserModal({ onClose, onCreated }: { onClose: () => void; onCreated: (u: UserAccount) => void }) {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState<'tech' | 'client'>('tech')
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const submit = async () => {
+    if (busy) return
+    if (!name.trim()) { setError('Full name is required.'); return }
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) { setError('Enter a valid email address.'); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
+    setBusy(true)
+    try {
+      const created = await api.users.create({ name: name.trim(), email: email.trim(), password, role })
+      onCreated(created)
+      onClose()
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not create the account — the API is unreachable.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const label = { fontFamily: mono, fontSize: 10, letterSpacing: '1px', color: '#6B7A8E', marginBottom: 5 } as const
+  const field = { width: '100%', padding: '10px 12px', border: '1px solid #D4D7CF', borderRadius: 7, fontSize: 13, background: '#FFFFFF', color: '#1c1c1c', boxSizing: 'border-box' } as const
+
+  const roleCard = (r: 'tech' | 'client', title: string, desc: string) => {
+    const active = role === r
+    return (
+      <button key={r} onClick={() => setRole(r)} style={{ flex: 1, border: `1px solid ${active ? '#1c1c1c' : '#D4D7CF'}`, cursor: 'pointer', background: active ? '#1c1c1c' : '#FFFFFF', color: active ? '#FFFFFF' : '#3C4C61', textAlign: 'left', padding: '11px 13px', borderRadius: 8 }}>
+        <div style={{ fontWeight: 700, fontSize: 13 }}>{title}</div>
+        <div style={{ fontSize: 11, marginTop: 2, opacity: 0.75 }}>{desc}</div>
+      </button>
+    )
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(10,20,35,0.55)', display: 'grid', placeItems: 'center', zIndex: 50 }}>
+      <div style={{ background: '#FFFFFF', borderRadius: 12, width: 480, maxWidth: '92vw', maxHeight: '90vh', overflow: 'auto', padding: '24px 26px', animation: 'popIn .2s ease' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Add User</h2>
+          <button className="hv-close" onClick={onClose} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 20, color: '#6B7A8E', padding: 4 }}>✕</button>
+        </div>
+        <div style={{ fontSize: 13, color: '#6B7A8E', marginTop: 6, lineHeight: 1.5 }}>
+          The new user signs in at the portal with this email and password.
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <div style={label}>ACCOUNT TYPE</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {roleCard('tech', 'Field Technician', 'Scans QR, logs visits, signs off')}
+            {roleCard('client', 'Client', 'Read-only portal: equipment & reports')}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 14 }}>
+          <div style={label}>{role === 'client' ? 'COMPANY / CONTACT NAME' : 'FULL NAME'}</div>
+          <input value={name} onChange={(e) => { setName(e.target.value); setError('') }} placeholder={role === 'client' ? 'e.g. Harbour Point Facilities Ltd' : 'e.g. Chinedu Obi'} style={field} />
+        </div>
+        <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div>
+            <div style={label}>EMAIL</div>
+            <input value={email} onChange={(e) => { setEmail(e.target.value); setError('') }} placeholder="name@company.com" autoComplete="off" style={field} />
+          </div>
+          <div>
+            <div style={label}>PASSWORD</div>
+            <input value={password} onChange={(e) => { setPassword(e.target.value); setError('') }} type="password" placeholder="min. 6 characters" autoComplete="new-password" style={field} />
+          </div>
+        </div>
+
+        {error && (
+          <div style={{ marginTop: 12, background: '#FBE2D5', border: '1px solid #F0C4AC', borderRadius: 7, padding: '9px 12px', fontSize: 12.5, color: '#8A3410' }}>{error}</div>
+        )}
+        <button className="hv-brand" onClick={() => void submit()} disabled={busy} style={{ marginTop: 18, width: '100%', border: 'none', cursor: busy ? 'wait' : 'pointer', background: busy ? '#7FB4D6' : BRAND, color: '#FFFFFF', fontWeight: 700, fontSize: 14, padding: 13, borderRadius: 8 }}>{busy ? 'Creating…' : 'Create Account'}</button>
       </div>
     </div>
   )

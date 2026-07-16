@@ -18,6 +18,38 @@ export class DataService {
     return (user as User | null) ?? undefined;
   }
 
+  /* ------------------------------- users -------------------------------- */
+
+  async listUsers(): Promise<Omit<User, 'password'>[]> {
+    return this.prisma.user.findMany({
+      select: { email: true, name: true, role: true, title: true },
+      orderBy: [{ role: 'asc' }, { name: 'asc' }],
+    }) as Promise<Omit<User, 'password'>[]>;
+  }
+
+  async emailTaken(email: string): Promise<boolean> {
+    const row = await this.prisma.user.findFirst({
+      where: { email: { equals: email.trim(), mode: 'insensitive' } },
+      select: { email: true },
+    });
+    return row !== null;
+  }
+
+  async addUser(input: { email: string; password: string; name: string; role: 'tech' | 'client' }): Promise<Omit<User, 'password'>> {
+    const title = input.role === 'tech' ? 'Field Technician' : 'Client';
+    const created = await this.prisma.user.create({
+      data: {
+        email: input.email.trim().toLowerCase(),
+        password: input.password,
+        name: input.name.trim(),
+        role: input.role,
+        title,
+      },
+      select: { email: true, name: true, role: true, title: true },
+    });
+    return created as Omit<User, 'password'>;
+  }
+
   /* ----------------------------- equipment ------------------------------ */
 
   async listEquipment(): Promise<Equipment[]> {

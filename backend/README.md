@@ -29,6 +29,8 @@ CORS is enabled for the Vite dev server (`http://localhost:5173`) and preview
 | POST   | `/tickets`    | Create ticket (`eqId` must reference existing equipment)                        |
 | GET    | `/logs`       | Maintenance visit logs (filter with `?eqId=EQ-0117`)                            |
 | POST   | `/logs`       | Record a visit log (`eqId` must reference existing equipment)                   |
+| GET    | `/users`      | List accounts (never returns passwords)                                         |
+| POST   | `/users`      | Create a `tech` or `client` account (unique email, password ≥ 6 chars)          |
 
 ## Architecture
 
@@ -60,8 +62,15 @@ session-mode pooler (`DIRECT_URL`). Credentials live in `.env` (gitignored) —
 see `.env.example`. `DataService` remains the single storage seam; controllers
 only talk to it.
 
-Demo accounts (also listed on the frontend sign-in screen):
+## Accounts
 
-- `admin@ultramoderneng.ng` / `admin123`
-- `tech@ultramoderneng.ng` / `tech123`
-- `client@zenithtowers.ng` / `client123`
+There is no self-service signup. The admin signs in with the seeded bootstrap
+account and creates Field Technician / Client users from the console's
+*Users & Access* screen (`POST /users`). Seeded accounts:
+
+- `admin@ultramoderneng.ng` / `admin123` — **bootstrap admin** (rotate this)
+- `tech@ultramoderneng.ng` / `tech123` — sample technician
+- `client@zenithtowers.ng` / `client123` — sample client
+
+> **Prototype limitation:** passwords are stored in plaintext to keep the demo
+> simple. Hash them (bcrypt/argon2) before any real production use.

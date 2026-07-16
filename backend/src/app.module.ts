@@ -7,9 +7,10 @@ import { EquipmentModule } from './equipment/equipment.module';
 import { PartsModule } from './parts/parts.module';
 import { TicketsModule } from './tickets/tickets.module';
 import { LogsModule } from './logs/logs.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [DataModule, AuthModule, EquipmentModule, PartsModule, TicketsModule, LogsModule],
+  imports: [DataModule, AuthModule, EquipmentModule, PartsModule, TicketsModule, LogsModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })
