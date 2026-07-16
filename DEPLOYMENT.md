@@ -21,15 +21,14 @@ the frontend URL for the backend's CORS. Order:
 
 1. [railway.com](https://railway.com) → **New Project** → **Deploy from GitHub
    repo** → pick `TechProoo/ultramodern`.
-2. Open the service → **Settings** → **Source / Build**:
-   - **⚠️ Root Directory**: `backend` — **this is required.** This is a monorepo;
-     without it Railway builds from the repo root, finds no `package.json`, and
-     fails with *"Railpack could not determine how to build the app."* Set it,
-     then redeploy.
-   - Once Root Directory is `backend`, Railway reads `backend/railway.json`
-     (build `npm run build`, start `npm run start:migrate` → `prisma migrate
-     deploy` then `node dist/main`). `prisma generate` runs automatically via
-     the `postinstall` script.
+2. Build config — **no Root Directory setting needed.** The repo ships root-level
+   `railway.json` + `nixpacks.toml` that force the Node builder and build the
+   backend from `backend/` (install → `npm run build` → `npm run start:migrate`,
+   which runs `prisma migrate deploy` then `node dist/main`; `prisma generate`
+   runs via `postinstall`). Just let it deploy.
+   - *Optional / cleaner:* instead of the root config you can set **Settings →
+     Root Directory = `backend`**; Railway then uses `backend/railway.json` and
+     ignores the root files. Either approach works — don't do both halfway.
 3. **Variables** — add:
    | Key            | Value                                                                 |
    | -------------- | --------------------------------------------------------------------- |
@@ -89,8 +88,12 @@ the frontend URL for the backend's CORS. Order:
 
 **Railway: "Railpack could not determine how to build the app"** (and the log
 lists `backend/` and `frontend/` at `./`) — the service is building from the
-repo root. Set **Settings → Root Directory = `backend`** and redeploy. Railway
-only reads `backend/railway.json` once the root directory points at `backend`.
+repo root with the default Railpack builder. The repo's root `railway.json`
+(builder `NIXPACKS`) + `nixpacks.toml` fix this by forcing the Node builder and
+building `backend/` from the root; just redeploy after pulling those files. If
+it still shows Railpack in the logs, the service cached the old config — trigger
+a fresh deploy (or **Settings → Root Directory = `backend`** as the alternative,
+which uses `backend/railway.json` instead).
 
 **Railway: app boots then crashes, or `/equipment` errors** — the `DATABASE_URL`
 and `DIRECT_URL` variables aren't set (or are wrong). Add them in **Variables**

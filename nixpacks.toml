@@ -1,0 +1,21 @@
+# Root-level Nixpacks config so Railway can build the NestJS backend even when
+# the service Root Directory is the repo root (this is a monorepo — the app
+# lives in backend/). Forces the Node provider and delegates every phase into
+# backend/, so no dashboard "Root Directory" setting is required.
+#
+# Alternative: set the service Root Directory to `backend` in Railway settings,
+# in which case backend/railway.json is used instead and this file is ignored.
+
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd backend && npm ci"]
+
+[phases.build]
+cmds = ["cd backend && npm run build"]
+
+[start]
+cmd = "cd backend && npm run start:migrate"
