@@ -116,8 +116,8 @@ export default function Landing() {
           <div>
             <div style={{ fontWeight: 800, fontSize: 18 }}>Talk to our operations desk</div>
             <div style={{ fontSize: 13.5, color: '#4B5563', lineHeight: 1.7, marginTop: 10 }}>
-              Plot 14B Adeola Odeku St, Victoria Island, Lagos<br />
-              +234 809 442 1100 · <a href="mailto:service@ultramoderneng.ng">service@ultramoderneng.ng</a>
+              33, Fatai Irawo Street, off Muritala Muhammed International Airport Road, Ajao Estate, Lagos.<br />
+              <a href="tel:+2347065947035">+234 7065947035</a>, <a href="tel:+2348033545484">08033545484</a> · <a href="mailto:info@ultramoderneng.com">info@ultramoderneng.com</a>
             </div>
           </div>
           <button className="hv-outline" onClick={goLogin} style={{ border: '1px solid #0274be', cursor: 'pointer', background: 'transparent', color: '#0274be', fontWeight: 700, fontSize: 14, padding: '14px 24px', borderRadius: 9 }}>Client portal sign in</button>

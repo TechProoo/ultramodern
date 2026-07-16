@@ -519,7 +519,7 @@ function ReportPreview({ padMain, narrow }: { padMain: string; narrow: boolean }
             </div>
           </div>
           <div style={{ background: '#F2F3EF', borderTop: '1px solid #E0E2DA', padding: '12px 32px', display: 'flex', justifyContent: 'space-between', fontFamily: mono, fontSize: 9.5, color: '#8A94A2', letterSpacing: '0.6px', flexWrap: 'wrap', gap: 8 }}>
-            <span>PLOT 14B ADEOLA ODEKU ST, VICTORIA ISLAND, LAGOS</span><span>+234 809 442 1100 · SERVICE@ULTRAMODERNENG.NG</span>
+            <span>33, FATAI IRAWO STREET, OFF MURITALA MUHAMMED INTERNATIONAL AIRPORT ROAD, AJAO ESTATE, LAGOS</span><span>+234 7065947035, 08033545484 · INFO@ULTRAMODERNENG.COM</span>
           </div>
         </div>
       </div>
